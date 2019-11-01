@@ -5,6 +5,9 @@ from tabulate import tabulate
 from subprocess import Popen, PIPE
 import subprocess
 
+def customTabulate(data, headers):
+    return tabulate(data, headers, numalign="right")
+
 def runShell(command):
     result = subprocess.run(command.split(" "), stdout=subprocess.PIPE)
     return result.stdout.decode("utf-8")
@@ -82,14 +85,22 @@ for item in nodes["items"]:
     clusterReport.append(result)
 
 result = []
-result.append('TOTALS')
+result.append('TOTALS (K)')
 result.append(totalAllocCpu)
 result.append(totalCapCpu)
 result.append(totalAllocMemory)
 result.append(totalCapMemory)
 clusterReport.append(result)
 
-print(tabulate(clusterReport, headers=['Node', 'Alloc. CPU', 'Cap. CPU', 'Alloc. Memory', 'Cap. Memory']))
+result = []
+result.append('TOTALS (G)')
+result.append(totalAllocCpu / 1000)
+result.append(totalCapCpu / 1000)
+result.append(totalAllocMemory / 1000)
+result.append(totalCapMemory / 1000)
+clusterReport.append(result)
+
+print(customTabulate(clusterReport, headers=['Node', 'Alloc. CPU', 'Cap. CPU', 'Alloc. Memory', 'Cap. Memory']))
 print("")
 
 command = "kubectl get resourcequotas --all-namespaces -o json"
@@ -133,35 +144,74 @@ for item in resourceQuotas["items"]:
     rqReport.append(result)
 
 result = []
-result.append('TOTALS')
+result.append('TOTALS (K)')
 result.append(totalHardCpu)
 result.append(totalUsedCpu)
 result.append(totalHardMemory)
 result.append(totalUsedMemory)
 rqReport.append(result)
+
+result = []
+result.append('TOTALS (G)')
+result.append(totalHardCpu / 1000)
+result.append(totalUsedCpu / 1000)
+result.append(totalHardMemory / 1000)
+result.append(totalUsedMemory / 1000)
+rqReport.append(result)
+
 #print("totalHardCpu: %s", totalHardCpu)
-print(tabulate(rqReport, headers=['Resource Quota', 'Hard CPU', 'Used CPU', 'Hard Memory', 'Used Memory']))
+print(customTabulate(rqReport, headers=['Resource Quota', 'Hard CPU', 'Used CPU', 'Hard Memory', 'Used Memory']))
 print("")
 
 diffReport = []
+
+diffCpuAllocHard = totalAllocCpu - totalHardCpu
+diffCpuAllocUsed = totalAllocCpu - totalUsedCpu
+diffCpuCapHard = totalCapCpu - totalHardCpu
+diffCpuCapUsed = totalCapCpu - totalUsedCpu
+
 result = []
-result.append(totalAllocCpu - totalHardCpu)
-result.append(totalAllocCpu - totalUsedCpu)
-result.append(totalCapCpu - totalHardCpu)
-result.append(totalCapCpu - totalUsedCpu)
+result.append("K")
+result.append(diffCpuAllocHard)
+result.append(diffCpuAllocUsed)
+result.append(diffCpuCapHard)
+result.append(diffCpuCapUsed)
 diffReport.append(result)
 
-print(tabulate(diffReport, headers=['CPU Alloc - Hard', 'CPU Alloc - Used', 'CPU Cap - Hard', 'CPU Cap - Used']))
+result = []
+result.append("G")
+result.append(diffCpuAllocHard / 1000)
+result.append(diffCpuAllocUsed / 1000)
+result.append(diffCpuCapHard / 1000)
+result.append(diffCpuCapUsed / 1000)
+diffReport.append(result)
+
+print(customTabulate(diffReport, headers=['Unity', 'CPU Alloc - Hard', 'CPU Alloc - Used', 'CPU Cap - Hard', 'CPU Cap - Used']))
 print("")
 
 diffReport = []
+
+diffMemoryAllocHard = totalAllocMemory - totalHardMemory
+diffMemoryAllocUsed = totalAllocMemory - totalUsedMemory
+diffMemoryCapHard = totalCapMemory - totalHardMemory
+diffMemoryCapUsed = totalCapMemory - totalUsedMemory
+
 result = []
-result.append(totalAllocMemory - totalHardMemory)
-result.append(totalAllocMemory - totalUsedMemory)
-result.append(totalCapMemory - totalHardMemory)
-result.append(totalCapMemory - totalUsedMemory)
+result.append("K")
+result.append(diffMemoryAllocHard)
+result.append(diffMemoryAllocUsed)
+result.append(diffMemoryCapHard)
+result.append(diffMemoryCapUsed)
 diffReport.append(result)
 
-print(tabulate(diffReport, headers=['Mem Alloc - Hard', 'Mem Alloc - Used', 'Mem Cap - Hard', 'Mem Cap - Used']))
+result = []
+result.append("G")
+result.append(diffMemoryAllocHard / 1000)
+result.append(diffMemoryAllocUsed / 1000)
+result.append(diffMemoryCapHard / 1000)
+result.append(diffMemoryCapUsed / 1000)
+diffReport.append(result)
+
+print(customTabulate(diffReport, headers=['Mem Alloc - Hard', 'Mem Alloc - Used', 'Mem Cap - Hard', 'Mem Cap - Used']))
 print("")
 
