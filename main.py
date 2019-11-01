@@ -74,21 +74,20 @@ for item in nodes["items"]:
     result = []
     result.append(kNode)
     result.append(allocCpu)
-    result.append(allocMemory)
     result.append(capCpu)
+    result.append(allocMemory)
     result.append(capMemory)
     clusterReport.append(result)
 
 result = []
 result.append('TOTALS')
 result.append(totalAllocCpu)
-result.append(totalAllocMemory)
 result.append(totalCapCpu)
+result.append(totalAllocMemory)
 result.append(totalCapMemory)
 clusterReport.append(result)
 
-print("# Cluster nodes status")
-print(tabulate(clusterReport, headers=['Node', 'Alloc. CPU', 'Alloc. Memory', 'Cap. CPU', 'Cap. Memory']))
+print(tabulate(clusterReport, headers=['Node', 'Alloc. CPU', 'Cap. CPU', 'Alloc. Memory', 'Cap. Memory']))
 print("")
 
 command = "kubectl get resourcequotas --all-namespaces -o json"
@@ -139,6 +138,5 @@ result.append(totalHardMemory)
 result.append(totalUsedMemory)
 rqReport.append(result)
 #print("totalHardCpu: %s", totalHardCpu)
-print("# Resource Quotas")
 print(tabulate(rqReport, headers=['Resource Quota', 'Hard CPU', 'Used CPU', 'Hard Memory', 'Used Memory']))
 print("")
