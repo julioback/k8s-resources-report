@@ -34,7 +34,7 @@ def formatUnity(value):
 
     if 'Ki' in value:
         result = value.replace('Ki', '')
-        result = (int(result) / 1000) / 1000
+        result = (int(result) / 1000)
         return result
 
     if value.isnumeric():
@@ -58,16 +58,18 @@ for item in nodes["items"]:
     kAllocCpu = item["status"]["allocatable"]["cpu"]
     allocCpu = formatUnity(kAllocCpu)
     totalAllocCpu += allocCpu
+
+    kCapCpu = item["status"]["capacity"]["cpu"]
+    capCpu = formatUnity(kCapCpu)
+    totalCapCpu += capCpu
     
     kAllocMemory = item["status"]["allocatable"]["memory"]
     allocMemory = formatUnity(kAllocMemory)
     totalAllocMemory += allocMemory
-    
-    kCapCpu = item["status"]["capacity"]["cpu"]
-    capCpu = formatUnity(kCapCpu)
-    totalCapCpu += capCpu
 
     kCapMemory = item["status"]["capacity"]["memory"]
+    #print(kCapMemory)
+    #sys.exit()
     capMemory = formatUnity(kCapMemory)
     totalCapMemory += capMemory
 
@@ -140,3 +142,26 @@ rqReport.append(result)
 #print("totalHardCpu: %s", totalHardCpu)
 print(tabulate(rqReport, headers=['Resource Quota', 'Hard CPU', 'Used CPU', 'Hard Memory', 'Used Memory']))
 print("")
+
+diffReport = []
+result = []
+result.append(totalAllocCpu - totalHardCpu)
+result.append(totalAllocCpu - totalUsedCpu)
+result.append(totalCapCpu - totalHardCpu)
+result.append(totalCapCpu - totalUsedCpu)
+diffReport.append(result)
+
+print(tabulate(diffReport, headers=['CPU Alloc - Hard', 'CPU Alloc - Used', 'CPU Cap - Hard', 'CPU Cap - Used']))
+print("")
+
+diffReport = []
+result = []
+result.append(totalAllocMemory - totalHardMemory)
+result.append(totalAllocMemory - totalUsedMemory)
+result.append(totalCapMemory - totalHardMemory)
+result.append(totalCapMemory - totalUsedMemory)
+diffReport.append(result)
+
+print(tabulate(diffReport, headers=['Mem Alloc - Hard', 'Mem Alloc - Used', 'Mem Cap - Hard', 'Mem Cap - Used']))
+print("")
+
